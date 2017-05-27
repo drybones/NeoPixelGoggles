@@ -52,8 +52,8 @@ void loop() {
   switch(mode) {
 
     case 0: // rainbow spinners
-      spin(0, 16, 2, 1.5, 32, 255, 0, 0);
-      spin(16, 16, 2, 1.5, 32, 255, 1, 0);
+      spin(0, 16, 2, 1.5, 32, 255, 0, 0.0);
+      spin(16, 16, 2, 1.5, 32, 255, 1, -1.5);
       hue = (hue+1) % 255;
       break;
 
