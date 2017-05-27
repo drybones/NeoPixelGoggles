@@ -1,6 +1,3 @@
-// Low power NeoPixel goggles example.  Makes a nice blinky display
-// with just a few LEDs on at any time.
-
 #include <Adafruit_NeoPixel.h>
 #ifdef __AVR_ATtiny85__ // Trinket, Gemma, etc.
  #include <avr/power.h>
@@ -11,8 +8,8 @@
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(32, PIN);
 
 const float TAU = 2.0 * PI;
-const uint8_t NUM_MODES = 3;
-const uint8_t MODE_DURATION[NUM_MODES] = { 5000, 5000, 5000 };
+const uint8_t NUM_MODES = 2;
+const unsigned long MODE_DURATION[NUM_MODES] = { 10000, 15000 }; // times are in ms
 
 uint8_t mode   = 0; // Current animation effect
 unsigned long lastModeSwitch = millis();
@@ -53,90 +50,50 @@ void loop() {
   }
 
   switch(mode) {
-      case 0: 
-        setPixelRange(0, 32, getColor(0, 128));
-        break;
-      case 1: 
-        setPixelRange(0, 32, getColor(85, 128));
-        break;
-      case 2: 
-        setPixelRange(0, 32, getColor(170, 128));
-        break;
-      
-//    case 0: // rainbow spinners
-//      spin(0, 16, 2, 2.0, 64, 255, 0, 0);
-//      spin(16, 16, 2, 2.0, 64, 255, 1, 0);
-//      hue = (hue+10) % 255;
-//      break;
 
-//    case 5: // flickering 
-//      hue = 84;
-//      flicker(0, 32, 32, 255, 40);
-//      break;
+    case 0: // rainbow spinners
+      spin(0, 16, 2, 1.5, 32, 255, 0, 0);
+      spin(16, 16, 2, 1.5, 32, 255, 1, 0);
+      hue = (hue+1) % 255;
+      break;
 
-//    case 1: // pulse
-//      hue = 0;
-//      oscillate(0, 16, 32, 255, 1.0, 0.0);
-//      oscillate(16, 16, 32, 255, 1.0, PI);
-//      break;
+    case 1: // pulse
+      oscillate(0, 16, 128, 255, 3.0, 0.0);
+      oscillate(16, 16, 128, 255, 3.0, PI);
+      hue = (hue+1) % 255;
+      break;
 
   }
   pixels.show();
   delay(10);
 }
 
-//void oscillate(uint8_t startPixel, uint8_t pixelLength, uint8_t minAlpha, uint8_t maxAlpha, float freq, float phase)
-//{
-//  unsigned long time = millis();
-//  uint8_t alpha = (maxAlpha-minAlpha)*0.5*(sin((time/1000.0)*freq*TAU + phase)+1.0)+minAlpha;
-//  setPixelRange(startPixel, pixelLength, getColor(hue, alpha));
-//}
-//
-//void spin(uint8_t startPixel, uint8_t pixelLength, uint8_t numPeaks, float freq, uint8_t minAlpha, uint8_t maxAlpha, uint8_t dir, float phase) {
-//  unsigned long time = millis();
-//  uint8_t alpha;
-//  uint8_t pos;
-//  
-//  for(uint8_t i=0; i<pixelLength; i++)
-//  {
-//    alpha = (maxAlpha-minAlpha)*0.5*(1.0+sin(TAU*(numPeaks*(1.0*i/pixelLength)+(time/1000.0)*freq)+phase))+minAlpha;
-//    if(dir == 0)
-//    {
-//      pos = startPixel+i;
-//    }
-//    else
-//    {
-//      pos = startPixel+pixelLength-i-1;
-//    }
-//      pixels.setPixelColor(pos, getColor(hue, alpha));
-//  }  
-//}
+void oscillate(uint8_t startPixel, uint8_t pixelLength, uint8_t minAlpha, uint8_t maxAlpha, float freq, float phase)
+{
+  unsigned long time = millis();
+  uint8_t alpha = (maxAlpha-minAlpha)*0.5*(sin((time/1000.0)*freq*TAU + phase)+1.0)+minAlpha;
+  setPixelRange(startPixel, pixelLength, getColor(hue, alpha));
+}
 
-//void flicker(uint8_t startPixel, uint8_t pixelLength, uint8_t minAlpha, uint8_t maxAlpha, uint8_t alphaDelta)
-//{
-//  static uint8_t alpha;
-//  static uint8_t dir;
-//  
-//  uint8_t flip = random(32);
-//  if(flip > 20) {
-//    dir = 1 - dir;
-//  }
-//  if (dir == 1) {
-//    alpha += alphaDelta;
-//  }
-//  if (dir == 0) {
-//    alpha -= alphaDelta;
-//  }
-//  if (alpha < minAlpha) {
-//    alpha = minAlpha;
-//    dir = 1;
-//  }
-//  if (alpha > maxAlpha) {
-//    alpha = maxAlpha;
-//    dir = 0;
-//  }
-//  setPixelRange(startPixel, pixelLength, getColor(hue, alpha));
-//}
+void spin(uint8_t startPixel, uint8_t pixelLength, uint8_t numPeaks, float freq, uint8_t minAlpha, uint8_t maxAlpha, uint8_t dir, float phase) {
+  unsigned long time = millis();
+  uint8_t alpha;
+  uint8_t pos;
+  
+  for(uint8_t i=0; i<pixelLength; i++)
+  {
+    alpha = (maxAlpha-minAlpha)*0.5*(1.0+sin(TAU*(numPeaks*(1.0*i/pixelLength)+(time/1000.0)*freq)+phase))+minAlpha;
+    if(dir == 0)
+    {
+      pos = startPixel+i;
+    }
+    else
+    {
+      pos = startPixel+pixelLength-i-1;
+    }
+      pixels.setPixelColor(pos, getColor(hue, alpha));
+  }  
+}
 
 void setPixelRange(uint8_t startPixel, uint8_t pixelLength, uint32_t c) {
   for(uint8_t i=startPixel; i<(startPixel+pixelLength); i++) {
